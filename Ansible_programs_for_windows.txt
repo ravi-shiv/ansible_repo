@@ -1,0 +1,96 @@
+#-----------------------------------------------------------------------
+#The following example shows how win_updates can be used:
+- name: Install all critical and security updates
+  win_updates:
+    category_names:
+    - CriticalUpdates
+    - SecurityUpdates
+    state: installed
+  register: update_result
+
+- name: Reboot host if required
+  win_reboot:
+  when: update_result.reboot_required	
+
+#-----------------------------------------------------------------------
+#The following example show how win_hotfix can be used to install a single update or hotfix:
+- name: Download KB3172729 for Server 2012 R2
+  win_get_url:
+    url: http://download.windowsupdate.com/d/msdownload/update/software/secu/2016/07/windows8.1-kb3172729-x64_e8003822a7ef4705cbb65623b72fd3cec73fe222.msu
+    dest: C:\temp\KB3172729.msu
+
+- name: Install hotfix
+  win_hotfix:
+    hotfix_kb: KB3172729
+    source: C:\temp\KB3172729.msu
+    state: present
+  register: hotfix_result
+
+- name: Reboot host if required
+  win_reboot:
+  when: hotfix_result.reboot_required
+
+
+#-----------------------------------------------------------------------
+- name: Create local group to contain new users
+  win_group:
+    name: LocalGroup
+    description: Allow access to C:\Development folder
+
+- name: Create local user
+  win_user:
+    name: '{{ item.name }}'
+    password: '{{ item.password }}'
+    groups: LocalGroup
+    update_password: no
+    password_never_expires: yes
+  loop:
+  - name: User1
+    password: Password1
+  - name: User2
+    password: Password2
+
+
+#-----------------------------------------------------------------------
+# Flder Mgmt: 
+
+- name: Create Development folder
+  win_file:
+    path: C:\Development
+    state: directory
+
+- name: Set ACL of Development folder
+  win_acl:
+    path: C:\Development
+    rights: FullControl
+    state: present
+    type: allow
+    user: LocalGroup
+
+- name: Remove parent inheritance of Development folder
+  win_acl_inheritance:
+    path: C:\Development
+    reorganize: yes
+    state: absent
+#-----------------------------------------------------------------------
+Domain
+The modules win_domain_user and win_domain_group manages users and groups in a domain. The below is an example of ensuring a batch of domain users are created:
+
+- name: Ensure each account is created
+  win_domain_user:
+    name: '{{ item.name }}'
+    upn: '{{ item.name }}@MY.DOMAIN.COM'
+    password: '{{ item.password }}'
+    password_never_expires: no
+    groups:
+    - Test User
+    - Application
+    company: Ansible
+    update_password: on_create
+  loop:
+  - name: Test User
+    password: Password
+  - name: Admin User
+    password: SuperSecretPass01
+  - name: Dev User
+    password: '@fvr3IbFBujSRh!3hBg%wgFucD8^x8W5'
