@@ -1,0 +1,23 @@
+
+---
+  - hosts: web
+    become: yes
+    tasks:
+
+    - name: "just execute a ls -lrt command"
+      shell: "ls -lrt"
+      register: "output"
+      
+    - name: Install Apache2
+      apt:
+        name: apache2
+        state: latest
+
+    - name: Start apache2
+      service:
+        name: apache2
+        state: started
+      
+
+
+    

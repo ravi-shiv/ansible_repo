@@ -1,0 +1,31 @@
+---
+  - name: "Playing with Ansible and Git"
+    hosts: localhost
+    connection: local
+    tasks:
+
+      - name: Install Apache2
+        apt:
+          name: apache2
+          state: latest
+
+      - name: Start Service
+        service:
+          name: apache2
+          state: started
+
+      - name: "just execute a ls -lrt command"
+        shell: "ls -lrt"
+        register: "output"
+
+      - name: backup index html
+        copy: 
+          src: /var/www/html/index.html
+          dest: /var/www/html/index2.html 
+
+      - name: Copy new index html
+        copy: 
+          src: /etc/ansible/playbooks/index.html
+          dest: /var/www/html.index.html 
+
+      

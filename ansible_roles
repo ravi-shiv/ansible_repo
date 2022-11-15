@@ -1,0 +1,19 @@
+---
+# tasks file for ec2- ec2:
+  - ec2:
+    key_name: ansible
+    instance_type: t2.micro
+    image: ami-0ee23bfc74a881de5
+    region: us-east-1
+    wait: yes
+    wait_timeout: 50
+    count: 2
+    instance_tags:
+     Name: ansible-provision
+    monitoring: no
+    vpc_subnet_id: ^? subnet-014f5fcfb6f16a880
+    assign_public_ip: yes
+    aws_access_key: "{{ akey }}"
+    aws_secret_key: "{{ skey }}"
+
+    
